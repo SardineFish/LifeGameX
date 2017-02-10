@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Life Game X - Win32Desktop", "Life Game X - Win32 Desktop\Life Game X - Win32Desktop.csproj", "{35297B30-C1EF-4C30-9706-A66F265A46EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Life Game X", "Life Game X\Life Game X.csproj", "{EA5F09E2-F4F0-47B8-AECB-2E6C892F0A68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35297B30-C1EF-4C30-9706-A66F265A46EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35297B30-C1EF-4C30-9706-A66F265A46EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35297B30-C1EF-4C30-9706-A66F265A46EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35297B30-C1EF-4C30-9706-A66F265A46EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA5F09E2-F4F0-47B8-AECB-2E6C892F0A68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA5F09E2-F4F0-47B8-AECB-2E6C892F0A68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA5F09E2-F4F0-47B8-AECB-2E6C892F0A68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA5F09E2-F4F0-47B8-AECB-2E6C892F0A68}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
