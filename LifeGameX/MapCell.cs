@@ -38,10 +38,10 @@ namespace LifeGameX
 
         internal MapCell(World world, long x, long y) : base()
         {
+            this.Substances = new Dictionary<Substance, SubstanceCell>();
             this.World = world;
             this.X = x;
             this.Y = y;
-            
         }
 
         public new void Add(IPositionable obj)
@@ -73,7 +73,7 @@ namespace LifeGameX
             {
                 var substanceCell = new SubstanceCell(substance, amount);
                 this.Substances[substance] = substanceCell;
-                base.Add(substanceCell);
+                Add(substanceCell);
                 return substanceCell;
             }
             else
@@ -81,6 +81,18 @@ namespace LifeGameX
                 this.Substances[substance].Amount += amount;
                 return this.Substances[substance];
             }
+        }
+
+        public double GetSubstance(Substance substance, double amount)
+        {
+            if (!this.Substances.ContainsKey(substance))
+            {
+                return 0;
+            }
+            if (this.Substances[substance].Amount - amount < 0)
+                amount = this.Substances[substance].Amount;
+            this.Substances[substance].Amount -= amount;
+            return amount;
         }
 
         public new void Remove(IPositionable obj)

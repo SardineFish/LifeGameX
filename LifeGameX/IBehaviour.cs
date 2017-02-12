@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace LifeGameX
 {
-    public interface IRandomObject
+    public interface IBehaviour
     {
-        double Weight { get; set; }
+        void Act(params object[] args);
     }
 }

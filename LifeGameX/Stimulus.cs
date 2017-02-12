@@ -17,20 +17,31 @@ namespace LifeGameX
         public string Name { get; set; }
 
         public Stimulus NoReaction { get; set; }
-
-        RandomList<Reaction> reactions = new RandomList<Reaction>();
+        
         public RandomList<Reaction> Reactions { get; set; }
 
 
         public void Handle(params object[] args)
         {
-
+            if (this.Reactions.Count <= 0)
+            {
+                if (NoReaction == null)
+                    return;
+                Life.Stimulate(NoReaction, this);
+                return;
+            }
+            var reacton = this.Reactions.GetRandom();
+            reacton.Act(args);
+            Life.PrevioursReactions.Add(new ReactionRecord(this, reacton));
         }
 
         public Stimulus(Life life, Stimulus noReaction)
         {
             if (life == null)
                 throw new ArgumentNullException("The life cannot be null.");
+            /*if (noReaction == null)
+                throw new ArgumentNullException("NoReaction stimulus required.");*/
+            this.Reactions = new RandomList<Reaction>();
             this.Life = life;
             this.NoReaction = noReaction;
             this.ID = life.World.CreateStimulusID();

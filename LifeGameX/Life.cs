@@ -27,12 +27,14 @@ namespace LifeGameX
             set
             {
                 energy = value;
-                if (energy < 10)
-                    EnergyLowStimulus.Handle(this, energy);
+                if (energy < 30)
+                    Stimulate(EnergyLowStimulus, energy);
                 if (energy <= 0)
-                    EnergyEmptyStimulus.Handle(this, energy);
+                    EnergyEmptyStimulus.Handle(0);
             }
         }
+
+        public Property EnergyWast { get; private set; }
 
         public Health Health { get; private set; }
 
@@ -73,6 +75,10 @@ namespace LifeGameX
 
         public void Stimulate (Stimulus stimulus,params object[] args)
         {
+            if (stimulus == null)
+                throw new ArgumentNullException();
+            if (this.PendingStimulus.Count > 200)
+                return;
             this.PendingStimulus.Enqueue(new PendingStimulus(stimulus, args));
         }
 
@@ -82,7 +88,7 @@ namespace LifeGameX
                 throw new ArgumentNullException();
             if (!this.StimulusList.Contains(stimulusSource))
                 throw new Exception("Stimulus no available.");
-            var reaction = new Reaction(this, stimulusSource);
+            var reaction = new Reaction(this, stimulusSource, behaviors);
             stimulusSource.Reactions.Add(reaction);
             this.ReactionList.Add(reaction);
             return reaction;
@@ -93,7 +99,9 @@ namespace LifeGameX
             if (reaction == null)
                 throw new ArgumentNullException();
             if (!this.ReactionList.Contains(reaction))
-                throw new Exception("Reaction no available.");
+            {
+                return;
+            }
             reaction.Source.Reactions.Remove(reaction);
             this.ReactionList.Remove(reaction);
             for(var i = 0; i < this.PrevioursReactions.Count; i++)
@@ -118,7 +126,7 @@ namespace LifeGameX
             {
                 foreach (var behaviors in reaction.Behaviours)
                 {
-                    behaviorList.Add(behaviors.Clone(life));
+                    behaviorList.Add(life.Behaviours[Convert.ToInt64(behaviors.ID)]);
                 }
             }
             life.BuildReaction(stimulusTo, behaviorList.ToArray());
@@ -128,7 +136,7 @@ namespace LifeGameX
         {
             var child = new Life(this.Species, this.World);
 
-            child.Energy = 0;
+            child.energy = 0;
 
             //clone reaction
             cloneReaction(this.NoReactionStimulus, child.NoReactionStimulus, child);
@@ -152,7 +160,7 @@ namespace LifeGameX
         public void Move(long x,long y)
         {
             World[X, Y].Remove(this);
-            World[X, Y].Add(this);
+            World[x, y].Add(this);
         }
 
         internal void Update(long dt)
@@ -160,7 +168,18 @@ namespace LifeGameX
             if (!Alive)
                 return;
             Age += dt;
-            while (this.PendingStimulus.Count > 0)
+            this.Energy -= EnergyWast;
+            this.Stimulate(this.TimeUpdateStimulus, Age);
+            foreach (var cell in World[X, Y])
+            {
+                if (cell == this)
+                    continue;
+                var amount = cell is SubstanceCell ? (cell as SubstanceCell).Amount : 0;
+                var target = cell is Life ? (cell as Life) : null;
+                this.Stimulate(this.EnvironmentStimulus, cell,amount,target);
+            }
+            var count = this.PendingStimulus.Count;
+            for (var i = 0; i < count; i++)
             {
                 if (!Alive)
                     return;
@@ -244,48 +263,65 @@ namespace LifeGameX
             // NoResponse
             var noResponse = new Behaviours.NoResponse(this);
             // Metabolize
-            var resToEnergy = new Behaviours.Metabolize.ResourceToEnergy(this, 10);
-            var resToRes = new Behaviours.Metabolize.ResourceToResource(this, 10);
-            var energyToRes = new Behaviours.Metabolize.EnergyToResource(this, 10);
-            var cure = new Behaviours.Metabolize.Cure(this, 5);
-            var autotomy = new Behaviours.Metabolize.Autotomy(this, 5);
+            var resToEnergy = new Behaviours.Metabolize.ResourceToEnergy(this, 2);
+            var resToRes = new Behaviours.Metabolize.ResourceToResource(this, 5);
+            var energyToRes = new Behaviours.Metabolize.EnergyToResource(this, 2);
+            var cure = new Behaviours.Metabolize.Cure(this, 2);
+            var autotomy = new Behaviours.Metabolize.Autotomy(this, 2);
+            var createSubstance = new Behaviours.Metabolize.CreateSubstance(this, 10);
             // Multiply
-            var multiply = new Behaviours.Multiply(this, 20);
+            var multiply = new Behaviours.Multiply(this, 40);
             // Action
             var die = new Behaviours.Action.Die(this);
-            var move = new Behaviours.Action.Move(this, 20);
+            var move = new Behaviours.Action.Move(this, 4);
+            var absorb = new Behaviours.Action.Absorb(this, 2);
+            var release = new Behaviours.Action.Release(this, 2);
             // Interact
-            var interact = new Behaviours.Interact(this, 10);
+            var interact = new Behaviours.Interact(this, 5);
             // Learn
-            var establishReaction = new Behaviours.Learn.EstablishReaction(this, 10);
-            var abolishReaction = new Behaviours.Learn.AbolishReaction(this, 10);
-            var incWeight = new Behaviours.Learn.IncreaseWeight(this, 5);
-            var decWeight = new Behaviours.Learn.DecreaseWeight(this, 5);
+            var establishReaction = new Behaviours.Learn.EstablishReaction(this, 5);
+            var abolishReaction = new Behaviours.Learn.AbolishReaction(this, 5);
+            var incWeight = new Behaviours.Learn.IncreaseWeight(this, 3);
+            var decWeight = new Behaviours.Learn.DecreaseWeight(this, 3);
 
-            var mutate = new Behaviours.Mutate(this, 50);
+            var mutate = new Behaviours.Mutate(this, 20);
 
             #endregion
-
-            //init Energy
-            this.energy = 200;
-            this.BuildReaction(this.EnergyEmptyStimulus, this.Behaviours[LifeGameX.Behaviours.Action.Die.TypeID]);
-
-            //init Health
-            this.Health = new LifeGameX.Health(this, 100);
 
             //init stimulus
             this.StimulusList = new List<Stimulus>();
             this.NoReactionStimulus = new Stimulus(this, this.NoReactionStimulus);
+            this.NoReactionStimulus.Name = "NoReaction";
             this.EnergyLowStimulus = new Stimulus(this, this.NoReactionStimulus);
+            this.EnergyLowStimulus.Name = "EnergyLowStimulus";
             this.InteractStimulus = new Stimulus(this, this.NoReactionStimulus);
+            this.InteractStimulus.Name = nameof(InteractStimulus);
             this.EnvironmentStimulus = new Stimulus(this, this.NoReactionStimulus);
+            this.EnvironmentStimulus.Name = nameof(EnvironmentStimulus);
             this.TimeUpdateStimulus = new Stimulus(this, this.NoReactionStimulus);
+            this.TimeUpdateStimulus.Name = nameof(TimeUpdateStimulus);
+            this.EnergyEmptyStimulus = new Stimulus(this, this.NoReactionStimulus);
+            this.EnergyEmptyStimulus.Name = nameof(EnergyEmptyStimulus);
 
-            this.BuildReaction(TimeUpdateStimulus, noResponse).Weight = 500;
+            //init NoReaction
+            this.BuildReaction(NoReactionStimulus, establishReaction);
+            this.BuildReaction(NoReactionStimulus, noResponse);
+
+            //init Energy
+            this.energy = 200;
+            this.BuildReaction(this.EnergyEmptyStimulus, die);
+            this.EnergyWast = new Property(this, 1);
+
+            //init Health
+            this.Health = new LifeGameX.Health(this, 100);
+
+            this.BuildReaction(TimeUpdateStimulus, noResponse).Weight = 200;
             this.BuildReaction(TimeUpdateStimulus, move);
             this.BuildReaction(TimeUpdateStimulus, energyToRes);
-            this.BuildReaction(TimeUpdateStimulus, resToEnergy);
+            this.BuildReaction(TimeUpdateStimulus, absorb, resToEnergy).Weight = 400;
             this.BuildReaction(TimeUpdateStimulus, multiply).Weight = 50;
+            this.BuildReaction(TimeUpdateStimulus, absorb).Weight = 200;
+            this.BuildReaction(TimeUpdateStimulus, mutate).Weight = 10;
         }
     }
 }

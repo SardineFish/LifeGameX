@@ -41,14 +41,16 @@ namespace LifeGameX
                 this.amount = value;
                 if ((double)this.amount / (double)this.Max.Value >= MuchRate)
                 {
-                    Much.Handle(this, this.amount, Much);
+                    Life.Stimulate(Much, this, amount);
                 }
                 else if ((double)this.amount / (double)this.Max.Value <= FewRate)
                 {
-                    Few.Handle(this, this.amount, Much);
+                    Life.Stimulate(Few, this, amount);
                 }
                 if (this.amount == this.Min)
-                    Empty.Handle(this, 0, Empty);
+                {
+                    Life.Stimulate(Empty, this, amount);
+                }
             }
         }
 
@@ -105,6 +107,16 @@ namespace LifeGameX
                 amount = TransferLimit.Value;
             if (this.Amount - amount < Min)
                 amount = this.Amount - Min;
+            return amount;
+        }
+
+        public double Add(double amount)
+        {
+            if (amount > TransferLimit)
+                amount = TransferLimit.Value;
+            if (amount + this.Amount > Max)
+                amount = Max - this.Amount;
+            this.Amount += amount;
             return amount;
         }
 

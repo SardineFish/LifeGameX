@@ -18,7 +18,18 @@ namespace LifeGameX
 
         public abstract void Act(params object[] args);
 
-        public double Weight { get; set; }
+        double w = 0;
+        public double Weight
+        {
+            get
+            {
+                return w;
+            }
+            set
+            {
+                w = value;
+            }
+        }
 
         public Property EnergyCost { get; set; }
 

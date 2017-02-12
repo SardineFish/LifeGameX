@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace LifeGameX
 {
+    public enum WorldStatus
+    {
+        NotRun=0,
+        Running=1,
+        Stopping=2,
+    }
     public class World
     {
         int substanceCount = 0;
@@ -39,6 +46,14 @@ namespace LifeGameX
             return speciesCount.ToString();
         }
 
+        long stimulusCount = 0;
+        public string CreateStimulusID()
+        {
+            globalCount++;
+            stimulusCount++;
+            return stimulusCount.ToString();
+        }
+
         Random random = new Random();
         public Random Random
         {
@@ -48,12 +63,25 @@ namespace LifeGameX
             }
         }
 
+        public Task Task { get; private set; }
+
+        public WorldStatus Status { get; private set; }
+
+        public long Width { get; private set; }
+        public long Height { get; private set; }
+
+        public long Time { get; private set; }
+
         public MapCell[,] Map { get; set; }
 
         public MapCell this[long x, long y]
         {
             get
             {
+                if (x < 0 || x > this.Width || y < 0 || y > this.Height)
+                {
+                    return new MapCell(this, x, y);
+                }
                 return Map[x, y];
             }
         }
@@ -69,6 +97,15 @@ namespace LifeGameX
             this.Lives.Add(life);
         }
 
+        public void Kill(Life life)
+        {
+            if (life.Alive)
+                throw new ArgumentException("This life is alive.");
+            this[life.X, life.Y].Remove(life);
+            life.Alive = false;
+            this.Lives.Remove(life);
+        }
+
         public World(long width, long height)
         {
             this.Map = new MapCell[width, height];
@@ -82,6 +119,35 @@ namespace LifeGameX
             this.Lives = new List<Life>();
         }
 
+        internal void Update(long dt)
+        {
+            this.Time += dt;
+            foreach (var life in Lives)
+            {
+                life.Update(dt);
+            }
+        }
 
+        void start()
+        {
+            while (true)
+            {
+                
+            }
+        }
+
+        public void Start()
+        {
+            if (this.Status == WorldStatus.Running)
+                return;
+            Task = new Task(start);
+            this.Status = WorldStatus.Running;
+            Task.Start();
+        }
+
+        public void Stop()
+        {
+            this.Status = WorldStatus.Stopping;
+        }
     }
 }

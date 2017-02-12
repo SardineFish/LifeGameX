@@ -13,7 +13,7 @@
     <DefaultLanguage>zh-CN</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -38,8 +38,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behaviour.cs" />
+    <Compile Include="Behaviours\Action.cs" />
+    <Compile Include="Behaviours\Interact.cs" />
+    <Compile Include="Behaviours\Learn.cs" />
     <Compile Include="Behaviours\Metabolize.cs" />
     <Compile Include="Behaviours\Multiply.cs" />
+    <Compile Include="Behaviours\Mutate.cs" />
+    <Compile Include="Health.cs" />
     <Compile Include="SubstanceCell.cs" />
     <Compile Include="IPositionable.cs" />
     <Compile Include="MapCell.cs" />

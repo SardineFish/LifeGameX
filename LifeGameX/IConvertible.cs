@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace LifeGameX
 {
-    public interface IRandomObject
+    public interface IConvertible
     {
-        double Weight { get; set; }
+        double ToEnergy { get; set; }
+        double FromEnergy { get; set; }
     }
 }

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace LifeGameX
 {
-    public interface IRandomObject
+    public interface IReaction
     {
-        double Weight { get; set; }
+        Stimulus Source { get; set; }
+        RandomList<Behaviour> Behaviours { get; set; }
+
     }
 }

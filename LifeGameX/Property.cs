@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 namespace LifeGameX
 {
-#pragma warning disable CS0660 // 类型定义运算符 == 或运算符 !=，但不重写 Object.Equals(object o)
-#pragma warning disable CS0661 // 类型定义运算符 == 或运算符 !=，但不重写 Object.GetHashCode()
     public class Property : ILifeComponent, IIdentification, IRandomObject
     {
         public string Description { get; set; }
@@ -37,6 +35,16 @@ namespace LifeGameX
             life.RandomWeightList.Add(this);
         }
 
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         //   +
         public static double operator +(Property p,double n)
         {
@@ -44,7 +52,7 @@ namespace LifeGameX
         }
         public static double operator +(double n,Property p)
         {
-            return p + n;
+            return n + p.Value;
         }
         public static double operator +(Property p1,Property p2)
         {
@@ -57,7 +65,7 @@ namespace LifeGameX
         }
         public static double operator -(double n, Property p)
         {
-            return p - n;
+            return n - p.Value;
         }
         public static double operator -(Property p1, Property p2)
         {
@@ -71,7 +79,7 @@ namespace LifeGameX
         }
         public static double operator *(double n, Property p)
         {
-            return p * n;
+            return n * p.Value;
         }
         public static double operator *(Property p1, Property p2)
         {
@@ -85,7 +93,7 @@ namespace LifeGameX
         }
         public static double operator /(double n, Property p)
         {
-            return p / n;
+            return n / p.Value;
         }
         public static double operator /(Property p1, Property p2)
         {
@@ -99,7 +107,7 @@ namespace LifeGameX
         }
         public static double operator %(double n, Property p)
         {
-            return p % n;
+            return n % p.Value;
         }
         public static double operator %(Property p1, Property p2)
         {
@@ -109,15 +117,17 @@ namespace LifeGameX
         //   ==
         public static bool operator ==(Property p, double n)
         {
+            if (Object.Equals(p, null))
+                return false;
             return p.Value == n;
         }
         public static bool operator ==(double n, Property p)
         {
-            return p.Value == n;
+            return p == n;
         }
         public static bool operator ==(Property p1, Property p2)
         {
-            return p1.Value == p2.Value;
+            return p2 == p1.Value;
         }
 
         //   !=
@@ -141,7 +151,7 @@ namespace LifeGameX
         }
         public static bool operator <(double n, Property p)
         {
-            return p.Value < n;
+            return n < p.Value;
         }
         public static bool operator <(Property p1, Property p2)
         {
@@ -155,7 +165,7 @@ namespace LifeGameX
         }
         public static bool operator >(double n, Property p)
         {
-            return p.Value > n;
+            return n > p.Value;
         }
         public static bool operator >(Property p1, Property p2)
         {

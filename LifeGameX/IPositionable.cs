@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace LifeGameX
 {
-    public interface IRandomObject
+    public interface IPositionable
     {
-        double Weight { get; set; }
+        long X { get; set; }
+        long Y { get; set; }
+        World World { get; set; }
     }
 }

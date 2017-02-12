@@ -20,11 +20,11 @@ namespace LifeGameX.Behaviours
                 }
                 this.Life.Energy -= this.EnergyCost;
                 SubstanceCapsule res = null;
-                if (args[0] is Substance)
+                if (args.Length > 0 && args[0] is Substance)
                 {
                     res = this.Life.Resources[args[0] as Substance];
                 }
-                else if (args[0] is SubstanceCapsule)
+                else if (args.Length > 0 && args[0] is SubstanceCapsule)
                 {
                     res = args[0] as SubstanceCapsule;
                 }
@@ -74,7 +74,7 @@ namespace LifeGameX.Behaviours
                     {
                         if (args[i] is SubstanceCapsule)
                         {
-                            res1 = this.Life.Resources[args[i] as Substance];
+                            res1 = args[i] as SubstanceCapsule;
                         }
                         else if (args[i] is SubstanceCapsule)
                         {
@@ -131,11 +131,11 @@ namespace LifeGameX.Behaviours
                 }
                 this.Life.Energy -= this.EnergyCost;
                 SubstanceCapsule res = null;
-                if (args[0] is Substance)
+                if (args.Length>0&&args[0] is Substance)
                 {
                     res = this.Life.Resources[args[0] as Substance];
                 }
-                else if (args[0] is SubstanceCapsule)
+                else if (args.Length > 0 && args[0] is SubstanceCapsule)
                 {
                     res = args[0] as SubstanceCapsule;
                 }
@@ -259,6 +259,50 @@ namespace LifeGameX.Behaviours
             public override Behaviour Clone(Life life)
             {
                 return new Autotomy(life, this.EnergyCost.Value);
+            }
+        }
+
+        public class CreateSubstance : Behaviour
+        {
+            public const long TypeID = 0x16;
+            public CreateSubstance(Life life, double energyCost) : base(TypeID, life, energyCost)
+            {
+                this.Name = "CreateSubstance";
+                this.Description = "Create a new type of substance.";
+            }
+
+            public override void Act(params object[] args)
+            {
+                if (this.Life.Energy < this.EnergyCost.Value)
+                {
+                    this.Life.Stimulate(this.Life.EnergyLowStimulus);
+                    return;
+                }
+                this.Life.Energy -= this.EnergyCost;
+                double param = 0;
+                foreach(var obj in args)
+                {
+                    if (obj is double || obj is long || obj is int)
+                        param += Convert.ToDouble(obj);
+                }
+                var fromEnergy = param * Life.World.Random.NextDouble();
+                var substance = new Substance(
+                    Life.World,
+      /*to Energy*/ fromEnergy * (param * (0.95 + 0.06 / (Life.World.Random.NextDouble() - 1.065))),
+                    fromEnergy
+                    );
+                var energy = Life.Energy * (-0.06 / (Life.World.Random.NextDouble() - 1.065));
+                var v = Math.Tan(0.89 * Math.PI * (Life.World.Random.NextDouble() - 0.49)) * 7 + 50;
+                var min = (Math.Tan(0.85 * Math.PI * (Life.World.Random.NextDouble() - 0.466)) / 10 + 0.3) * 0.5 + 0.05;
+                var amount = substance.FromEnergy * energy;
+                var limit = v * (Math.Tan(0.85 * Math.PI * (Life.World.Random.NextDouble() - 0.466)) / 10 + 0.3);
+                var res = new SubstanceCapsule(Life, substance, amount, min + v, min, limit);
+                Life.AddResource(res);
+            }
+
+            public override Behaviour Clone(Life life)
+            {
+                return new CreateSubstance(life, this.EnergyCost.Value);
             }
         }
     }

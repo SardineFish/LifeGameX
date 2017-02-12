@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace LifeGameX
 {
-    public interface IRandomObject
+    public interface ILifeComponent
     {
-        double Weight { get; set; }
+        Life Life { get; set; }
     }
 }
